@@ -1,0 +1,130 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+:root{
+    --setcolor: green;
+    --pcolor: black;
+    --scolor: darkblue;
+    --wcolor: green;
+}
+
+.web{
+    width: 100%;
+    min-height: 100vh;
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container{
+    width: 100%;
+    max-width: 400px;
+    min-height: 100vh;
+    padding: 2px;
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap:8px;
+}
+
+.container h1{
+    text-align: center;
+    text-shadow: 1.5px 1.5px silver;
+    font-weight: 700;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: oblique;
+}
+
+#status{
+    text-align: center;
+    font-weight: bold;
+}
+
+.scoreboard{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.board{
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(3, 100px);
+    gap: 6px;
+}
+
+.cell{
+    width: 100px;
+    height: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 2px solid black;
+    background-color: var(--scolor);
+    color: var(--pcolor);
+    cursor: pointer;
+    transition: background 0.5s;
+}
+
+.cell:hover{
+    background-color: whitesmoke;
+}
+
+.winner{
+    background-color: var(--wcolor) !important;
+    color: var(--pcolor);
+    transition: all 0.2s;
+    animation: winnerGlow 1s infinite alternate;
+}
+
+@keyframes winnerGlow {
+    0% {
+        box-shadow: 0 0 2px var(--wcolor), 0 0 4px var(--wcolor);
+    }
+    100% {
+        box-shadow: 0 0 12px var(--wcolor), 0 0 24px var(--wcolor);
+    }
+}
+
+.board.disabled .cell {
+    cursor: default;
+}
+.board.disabled .cell:hover {
+    background-color: var(--scolor); 
+}
+
+#resetBtn{
+    padding: 8px 30px;
+    border-radius: 8px;
+    background-color: silver;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+#resetBtn:hover{
+    background-color: green;
+    transform-origin: center;
+    transform: scale3d(0.9);
+}
+
+@media only screen and (max-width:370px){
+    .board{
+        grid-template-columns: repeat(3, 80px);
+    }
+
+    .cell{
+        width: 80px;
+        height: 110px;
+    }
+}
