@@ -1,38 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="./style.css">
-    <title>Tic-Tac-Toe</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+
     <div class="web">
-        <div class="container">
-            <h1>Tic-Tac-Toe</h1>
-            <h2 id="status">Start with PlayerX</h2>
+        <main class="container">
 
-            <div class="scoreboard">
-                <h3 id="scoreX">PlayerX: 0</h3>
-                <h3 id="scoreO">PlayerO: 0</h3>
-                <h3 id="scoreTie">Tie: 0</h3>
-            </div>
+            <!-- APP HEADER -->
+            <header class="app-header">
+                <h1 class="app-title">Tic Tac Toe</h1>
 
-            <div class="board" id="board">
-                <div class="cell" data-index="0"></div>
-                <div class="cell" data-index="1"></div>
-                <div class="cell" data-index="2"></div>
-                <div class="cell" data-index="3"></div>
-                <div class="cell" data-index="4"></div>
-                <div class="cell" data-index="5"></div>
-                <div class="cell" data-index="6"></div>
-                <div class="cell" data-index="7"></div>
-                <div class="cell" data-index="8"></div>
-            </div>
+                <!-- Game status (live updates) -->
+                <p id="status" class="game-status" aria-live="polite">
+                    Player X's Turn
+                </p>
+            </header>
 
-            <button id="resetBtn">Reset</button>
-        </div>
+            <!-- GAME CONTROLS -->
+            <section class="controls">
+                <button id="modeBtn" class="btn btn-mode">
+                    Mode: Single Player 🤖
+                </button>
+                <span id="modeHint">Click to switch mode</span>
+            </section>
+
+            <!-- SCOREBOARD -->
+            <section class="scoreboard" aria-label="Scoreboard">
+                <div id="scoreX" class="score">Player X: 0</div>
+                <div id="scoreO" class="score">Player O: 0</div>
+                <div id="scoreTie" class="score">Tie: 0</div>
+            </section>
+
+            <!-- GAME BOARD -->
+            <section class="game-board">
+                <div
+                    id="board"
+                    class="board"
+                    role="grid"
+                    aria-label="Tic Tac Toe Board"
+                >
+                    <button class="cell" data-index="0" role="gridcell"></button>
+                    <button class="cell" data-index="1" role="gridcell"></button>
+                    <button class="cell" data-index="2" role="gridcell"></button>
+                    <button class="cell" data-index="3" role="gridcell"></button>
+                    <button class="cell" data-index="4" role="gridcell"></button>
+                    <button class="cell" data-index="5" role="gridcell"></button>
+                    <button class="cell" data-index="6" role="gridcell"></button>
+                    <button class="cell" data-index="7" role="gridcell"></button>
+                    <button class="cell" data-index="8" role="gridcell"></button>
+                </div>
+            </section>
+
+            <!-- ACTIONS -->
+            <footer class="actions">
+                <button id="resetBtn" class="btn btn-reset">
+                    Reset Board
+                </button>
+            </footer>
+
+        </main>
     </div>
+
     <script src="./script.js"></script>
 </body>
 </html>
