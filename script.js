@@ -1,3 +1,6 @@
+/***********************
+ * LOCAL STORAGE HELPERS
+ ***********************/
 const STORAGE_KEY = "tic_tac_toe_state";
 
 function saveState(state) {
@@ -22,23 +25,24 @@ class GameEngine {
         this.reset();
     }
 
+    // Reset the board, set starting player
     reset(start = "X") {
         this.board = Array(9).fill("");
         this.currentPlayer = start;
         this.active = true;
     }
 
+    // Make a move at index i
     move(i) {
         if (!this.active || this.board[i]) return false;
         this.board[i] = this.currentPlayer;
         return true;
     }
 
+    // Check for winner or tie
     winner() {
         for (const [a,b,c] of this.wins) {
-            if (this.board[a] &&
-                this.board[a] === this.board[b] &&
-                this.board[a] === this.board[c]) {
+            if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
                 return { player: this.board[a], combo: [a,b,c] };
             }
         }
@@ -46,13 +50,14 @@ class GameEngine {
         return null;
     }
 
+    // Switch the current player
     switch() {
         this.currentPlayer = this.currentPlayer === "X" ? "O" : "X";
     }
 }
 
 /***********************
- * AI (MINIMAX)
+ * AI PLAYER (MINIMAX)
  ***********************/
 class AIPlayer {
     constructor(ai = "O", human = "X") {
@@ -62,7 +67,7 @@ class AIPlayer {
 
     bestMove(board) {
         let best = -Infinity, move = null;
-        board.forEach((c, i) => {
+        board.forEach((c,i) => {
             if (!c) {
                 board[i] = this.ai;
                 const score = this.minimax(board, false);
@@ -76,32 +81,34 @@ class AIPlayer {
         return move;
     }
 
-    minimax(board, max) {
-        const res = this.eval(board);
-        if (res !== null) return res;
+    minimax(board, isMaximizing) {
+        const result = this.eval(board);
+        if (result !== null) return result;
 
-        let best = max ? -Infinity : Infinity;
-        const player = max ? this.ai : this.human;
+        let best = isMaximizing ? -Infinity : Infinity;
+        const player = isMaximizing ? this.ai : this.human;
 
-        board.forEach((c, i) => {
+        board.forEach((c,i) => {
             if (!c) {
                 board[i] = player;
-                best = max
-                    ? Math.max(best, this.minimax(board, !max))
-                    : Math.min(best, this.minimax(board, !max));
+                best = isMaximizing
+                    ? Math.max(best, this.minimax(board, !isMaximizing))
+                    : Math.min(best, this.minimax(board, !isMaximizing));
                 board[i] = "";
             }
         });
+
         return best;
     }
 
+    // Evaluate board for minimax
     eval(board) {
-        const w = [
+        const wins = [
             [0,1,2],[3,4,5],[6,7,8],
             [0,3,6],[1,4,7],[2,5,8],
             [0,4,8],[2,4,6]
         ];
-        for (const [a,b,c] of w) {
+        for (const [a,b,c] of wins) {
             if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                 if (board[a] === this.ai) return 10;
                 if (board[a] === this.human) return -10;
@@ -112,7 +119,7 @@ class AIPlayer {
 }
 
 /***********************
- * UI
+ * USER INTERFACE
  ***********************/
 class UI {
     constructor(onCell) {
@@ -120,18 +127,17 @@ class UI {
         this.status = document.getElementById("status");
         this.modeBtn = document.getElementById("modeBtn");
 
-        // score elements
+        // Score elements
         this.scoreX = document.getElementById("scoreX");
         this.scoreO = document.getElementById("scoreO");
         this.scoreTie = document.getElementById("scoreTie");
 
-        this.cells.forEach((c, i) =>
-            c.onclick = () => onCell(i)
-        );
+        // Attach click events to cells
+        this.cells.forEach((c,i) => c.onclick = () => onCell(i));
     }
 
     draw(board) {
-        board.forEach((v, i) => this.cells[i].textContent = v);
+        board.forEach((v,i) => this.cells[i].textContent = v);
     }
 
     text(t) {
@@ -150,9 +156,8 @@ class UI {
     }
 
     setMode(ai) {
-        this.modeBtn.textContent = ai
-            ? "Mode: Single Player 🤖"
-            : "Mode: Two Player 👥";
+        // Show current mode clearly
+        this.modeBtn.textContent = ai ? "Mode: Single Player 🤖" : "Mode: Two Player 👥";
     }
 
     updateScores(scores) {
@@ -167,42 +172,53 @@ class UI {
  ***********************/
 class Controller {
     constructor() {
+        // Load saved state from localStorage
         const saved = loadState();
 
+        // Initialize engine, AI, UI
         this.engine = new GameEngine();
         this.ai = new AIPlayer();
         this.ui = new UI(this.play.bind(this));
 
+        // Restore state or default
         this.aiMode = saved?.aiMode ?? true;
-        this.scores = saved?.scores ?? { X: 0, O: 0, Tie: 0 };
+        this.scores = saved?.scores ?? { X:0, O:0, Tie:0 };
         this.lastWinner = saved?.lastWinner ?? null;
         this.gameResult = saved?.gameResult ?? null;
         this.statusText = saved?.statusText ?? "";
 
-        // RESTORE ENGINE STATE
         if (saved) {
             this.engine.board = saved.board;
             this.engine.currentPlayer = saved.currentPlayer;
             this.engine.active = saved.gameActive;
         }
 
-        // BUTTONS
+        // Buttons
         this.ui.modeBtn.onclick = this.toggleMode.bind(this);
         document.getElementById("resetBtn").onclick = () => this.reset();
 
-        // DRAW EVERYTHING
+        // Draw everything
         this.ui.setMode(this.aiMode);
         this.ui.draw(this.engine.board);
         this.ui.updateScores(this.scores);
 
-        // SHOW STATUS
+        // Show status message correctly
         if (!this.engine.active && this.statusText) {
-            this.ui.text(this.statusText);   // win/tie message restored
+            this.ui.text(this.statusText);
         } else {
             this.update();
         }
+
+        // Auto AI move if AI starts after reload
+        if (this.aiMode && this.engine.active && this.engine.currentPlayer === "O") {
+            setTimeout(() => {
+                const move = this.ai.bestMove([...this.engine.board]);
+                this.play(move);
+            }, 300);
+        }
     }
 
+    // Save current state
     persist() {
         saveState({
             board: this.engine.board,
@@ -216,29 +232,21 @@ class Controller {
         });
     }
 
-    syncUI() {
-        this.ui.draw(this.engine.board);
-        this.ui.text(
-            this.engine.active
-                ? `Player ${this.engine.currentPlayer}'s Turn`
-                : "Game Over"
-        );
-
-        document.getElementById("scoreX").textContent = `PlayerX: ${this.scores.X}`;
-        document.getElementById("scoreO").textContent = `PlayerO: ${this.scores.O}`;
-        document.getElementById("scoreTie").textContent = `Tie: ${this.scores.Tie}`;
+    // Update status text for current player
+    update() {
+        this.ui.text(`Player ${this.engine.currentPlayer}'s Turn`);
     }
 
+    // Handle a move
     play(i) {
         if (!this.engine.move(i)) return;
 
         this.ui.draw(this.engine.board);
 
         const win = this.engine.winner();
-
         if (win) {
             this.engine.active = false;
-            
+
             if (win.player === "Tie") {
                 this.scores.Tie++;
                 this.statusText = "It's a Tie 🤝";
@@ -252,15 +260,16 @@ class Controller {
             this.ui.text(this.statusText);
             this.ui.updateScores(this.scores);
             this.gameResult = win.player;
-
             this.persist();
             return;
         }
 
+        // Switch turn and persist
         this.engine.switch();
         this.update();
         this.persist();
 
+        // If AI turn, play automatically
         if (this.aiMode && this.engine.currentPlayer === "O") {
             setTimeout(() => {
                 const move = this.ai.bestMove([...this.engine.board]);
@@ -269,18 +278,18 @@ class Controller {
         }
     }
 
+    // Toggle between single and two-player mode
     toggleMode() {
         this.aiMode = !this.aiMode;
-        this.ui.setMode(this.aiMode); 
+        this.ui.setMode(this.aiMode);
 
-        const modeName = this.aiMode ? "Single Player 🤖" : "Two Player 👥";
-        this.ui.text(`Mode switched: ${modeName}. Player X starts`);
-
+        // Full reset when switching mode
         this.resetScores();
         this.engine.reset("X");
         this.ui.clear();
+        this.ui.text(`Mode switched: ${this.aiMode ? "Single Player 🤖" : "Two Player 👥"}. Player X starts`);
 
-        // Auto AI move if AI starts
+        // AI auto-start if needed
         if (this.aiMode && this.engine.currentPlayer === "O") {
             setTimeout(() => {
                 const move = this.ai.bestMove([...this.engine.board]);
@@ -291,24 +300,11 @@ class Controller {
         this.persist();
     }
 
-    update() {
-        this.ui.text(`Player ${this.engine.currentPlayer}'s Turn`);
-    }
-
-    resetScores() {
-        this.scores = { X: 0, O: 0, Tie: 0 };
-        this.lastWinner = null;
-        this.ui.updateScores(this.scores);
-
-        this.persist();
-    }
-
+    // Reset only the board (keep scores)
     reset() {
         const startPlayer = this.lastWinner || "X";
         this.engine.reset(startPlayer);
         this.ui.clear();
-
-        this.statusText = ""; // reset status text
 
         if (this.lastWinner) {
             this.ui.text(`Winner ${startPlayer} starts`);
@@ -316,9 +312,10 @@ class Controller {
             this.ui.text(`Player ${startPlayer}'s Turn`);
         }
 
+        this.statusText = "";
         this.persist();
 
-        // Auto AI move if AI starts
+        // AI auto-start if AI is first
         if (this.aiMode && this.engine.currentPlayer === "O") {
             setTimeout(() => {
                 const move = this.ai.bestMove([...this.engine.board]);
@@ -327,6 +324,13 @@ class Controller {
         }
     }
 
+    // Reset scores as well
+    resetScores() {
+        this.scores = { X:0, O:0, Tie:0 };
+        this.lastWinner = null;
+        this.ui.updateScores(this.scores);
+        this.persist();
+    }
 }
 
 /***********************
