@@ -1,6 +1,8 @@
 **🎮 Tic-Tac-Toe (Advanced)**
 
-      A modern, browser-based Tic-Tac-Toe game that supports single-player mode with AI and two-player mode, with scores, turn management, and game state persistence. Built entirely with Vanilla JavaScript, emphasizing clean architecture, modular design, and persistent storage using localStorage.
+      This project is a modern, browser-based Tic-Tac-Toe game built entirely with Vanilla JavaScript, designed with clean architecture and separation of concerns.
+      
+      It supports Single Player (AI) and Two Player modes, includes a persistent scoring system, and intelligently manages game state using localStorage and sessionStorage.
 
 **Live Demo** 👉 https://ala111205.github.io/Tic-Tac-Toe/
 
@@ -60,13 +62,53 @@
 
       Ensures AI auto-start when it’s the AI’s turn
 
-**💾 Offline & Local Storage**
+**💾 Persistence & Session Handling**
 
-      No backend required
+      🔐 localStorage (Long-Term Persistence)
 
-      Game state and scores remain even after closing or refreshing the browser
+            Stored under a single key:
 
-      Fully functional offline
+                  Board state
+
+                  Current player
+
+                  Game active/inactive state
+
+                  Scores (X, O, Tie)
+
+                  Game mode (Single / Two Player)
+
+                  Last winner
+
+                  Status text (win/tie messages)
+
+            This ensures:
+
+                  Refreshing the page keeps the game exactly as it was
+
+                  Scores are not lost on reload
+
+      🧭 sessionStorage (Session Control)
+
+            Used to detect new browser/tab sessions
+
+            When the tab or browser is closed:
+
+                  sessionStorage is cleared automatically
+
+            On reopening the game:
+
+                  The board always starts fresh
+
+                  No previous board state is restored
+
+                  Prevents confusing “half-finished” games after reopening
+
+            This gives correct UX:
+
+                  Refresh = resume
+
+                  Close & reopen = fresh board
 
 **📱 Responsive UI**
 
