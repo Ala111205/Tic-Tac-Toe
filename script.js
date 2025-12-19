@@ -1,7 +1,12 @@
 /***********************
- * LOCAL STORAGE HELPERS
+ * STORAGE HELPERS
  ***********************/
+const SESSION_KEY = "tic_tac_toe_session";
 const STORAGE_KEY = "tic_tac_toe_state";
+
+// Determine if this is a new tab/browser session
+const isNewSession = !sessionStorage.getItem(SESSION_KEY);
+sessionStorage.setItem(SESSION_KEY, "1");
 
 function saveState(state) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -187,7 +192,8 @@ class Controller {
         this.gameResult = saved?.gameResult ?? null;
         this.statusText = saved?.statusText ?? "";
 
-        if (saved) {
+        if (!isNewSession && saved) {
+            // Only restore previous game if same session
             this.engine.board = saved.board;
             this.engine.currentPlayer = saved.currentPlayer;
             this.engine.active = saved.gameActive;
